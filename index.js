@@ -155,8 +155,14 @@ var MochaReporter = function (baseReporterDecorator, formatError, config) {
                         line += repeatString('  ', depth + 1) + chalk.italic.yellow(browserName) + '\n';
                     }
 
-                    // add the error log in red
-                    line += chalk.red(formatError((item.log || [])[0], repeatString('  ', depth)));
+                    // add the error log in red, omitting ugly sourcemap
+                    var info = formatError((item.log || [])[0], repeatString('  ', depth))
+                    .split('\n').map(function(line) {
+                      return line
+                      .replace(/\(.+ <- /, '(')
+                      .replace(/(:\d+):\d+/, function(_, line) { return line; });
+                    })
+                    .join('\n');
                 }
 
                 // use write method of baseReporter
