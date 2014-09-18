@@ -157,12 +157,22 @@ var MochaReporter = function (baseReporterDecorator, formatError, config) {
 
                     // add the error log in red, omitting ugly sourcemap
                     var info = formatError((item.log || [])[0], repeatString('  ', depth))
-                    .split('\n').map(function(line) {
+                    .split('\n').map(function(line, i) {
+
+                      if (i === 0) {
+                        return chalk.red.bold(line);
+                      }
+
                       return line
                       .replace(/\(.+ <- /, '(')
-                      .replace(/(:\d+):\d+/, function(_, line) { return line; });
+                      .replace(/(:\d+):\d+/, function(_, line) { return line; })
+                      .replace(/\((.+):(\d+)\)/, function() {
+                        return '(' + chalk.yellow(arguments[1]) + ':' +
+                          chalk.blue.bold(arguments[2]) + ')';
+                      });
                     })
                     .join('\n');
+                    line += info;
                 }
 
                 // use write method of baseReporter
